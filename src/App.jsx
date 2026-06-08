@@ -186,7 +186,16 @@ export default function App() {
       });
 
       const data = await res.json();
-      const raw = data.content?.[0]?.text || "";
+
+if (!res.ok) {
+
+  alert(JSON.stringify(data, null, 2));
+
+  throw new Error("API Error");
+
+}
+
+const raw = data.content?.[0]?.text || "";
       const parsed = JSON.parse(raw.replace(/```json|```/g, "").trim());
       setResult(parsed);
       setActiveTab("breakdown");

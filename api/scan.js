@@ -45,7 +45,9 @@ export default async function handler(req, res) {
 
     const data = await anthropicRes.json();
 
-    return res.status(anthropicRes.status).json(data);
+console.error("Anthropic response:", JSON.stringify(data, null, 2));
+
+return res.status(anthropicRes.status).json(data);
   } catch (err) {
     console.error("Scanner error:", err);
     return res.status(500).json({
