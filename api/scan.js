@@ -1,40 +1,38 @@
 // /api/scan.js
-// Vercel serverless function. Proxies to Anthropic API.
-// ANTHROPIC_API_KEY is read from Vercel environment variables.
+// Vercel serverless function — Node runtime, 60s timeout.
+// Proxies to Anthropic API. ANTHROPIC_API_KEY from Vercel env vars.
 
-export default async function handler(request) {
-  // CORS — handle preflight
-  if (request.method === "OPTIONS") {
-    return new Response(null, {
-      status: 204,
-      headers: {
-        "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Methods": "POST, OPTIONS",
-        "Access-Control-Allow-Headers": "Content-Type",
-      },
-    });
+export const config = {
+  maxDuration: 60,
+};
+
+export default async function handler(req, res) {
+  // CORS
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+
+  if (req.method === "OPTIONS") {
+    return res.status(204).end();
   }
 
-  if (request.method !== "POST") {
-    return new Response(
-      JSON.stringify({ error: "Method not allowed" }),
-      { status: 405, headers: { "Content-Type": "application/json" } }
-    );
+  if (req.method !== "POST") {
+    return res.status(405).json({ error: "Method not allowed" });
   }
 
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) {
-    return new Response(
-      JSON.stringify({ error: "ANTHROPIC_API_KEY not configured" }),
-      { status: 500, headers: { "Content-Type": "application/json" } }
-    );
+    return res.status(500).json({ error: "ANTHROPIC_API_KEY not configured" });
   }
 
   try {
-    const body = await request.json();
+    // Body is already parsed by Vercel for application/json
+    const body = req.body;
 
-    // Forward everything to Anthropic. Frontend already builds the full
-    // payload (model, system, messages, max_tokens).
+    if (!body || !body.messages) {
+      return res.status(400).json({ error: "Invalid request body" });
+    }
+
     const anthropicRes = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
       headers: {
@@ -45,37 +43,14 @@ export default async function handler(request) {
       body: JSON.stringify(body),
     });
 
-   const text = await anthropicRes.text();
+    const data = await anthropicRes.json();
 
-console.log("Anthropic status:", anthropicRes.status);
-
-console.log("Anthropic response:", text);
-
-return new Response(text, {
-
-  status: anthropicRes.status,
-
-  headers: {
-
-    "Content-Type": "application/json",
-
-    "Access-Control-Allow-Origin": "*"
-
-  }
-
-});
-
-    return new Response(JSON.stringify(data), {
-      status: anthropicRes.status,
-      headers: {
-        "Content-Type": "application/json",
-        "Access-Control-Allow-Origin": "*",
-      },
-    });
+    return res.status(anthropicRes.status).json(data);
   } catch (err) {
-    return new Response(
-      JSON.stringify({ error: err.message || "Unknown error" }),
-      { status: 500, headers: { "Content-Type": "application/json" } }
-    );
+    console.error("Scanner error:", err);
+    return res.status(500).json({
+      error: err.message || "Unknown error",
+      stack: err.stack,
+    });
   }
 }
