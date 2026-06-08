@@ -164,8 +164,15 @@ export default function App() {
       let content;
       if (mode === "photo" && image) {
         setLoadingMsg("Reading the label");
-        content = [
-          { type: "image", source: { type: "base64", media_type: image.mediaType, data: image.base64 } },
+        const mediaType =
+
+  image.mediaType === "image/avif"
+
+    ? "image/jpeg"
+
+    : image.mediaType;
+    content = [
+          { type: "image", source: { type: "base64", media_type: mediaType, data: image.base64 } },
           { type: "text", text: "Photo of a beauty/personal care product label. Extract ingredients then run SERAI/SCANNER analysis." },
         ];
       } else {
@@ -186,16 +193,7 @@ export default function App() {
       });
 
       const data = await res.json();
-
-if (!res.ok) {
-
-  alert(JSON.stringify(data, null, 2));
-
-  throw new Error("API Error");
-
-}
-
-const raw = data.content?.[0]?.text || "";
+      const raw = data.content?.[0]?.text || "";
       const parsed = JSON.parse(raw.replace(/```json|```/g, "").trim());
       setResult(parsed);
       setActiveTab("breakdown");
