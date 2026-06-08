@@ -45,7 +45,25 @@ export default async function handler(request) {
       body: JSON.stringify(body),
     });
 
-    const data = await anthropicRes.json();
+   const text = await anthropicRes.text();
+
+console.log("Anthropic status:", anthropicRes.status);
+
+console.log("Anthropic response:", text);
+
+return new Response(text, {
+
+  status: anthropicRes.status,
+
+  headers: {
+
+    "Content-Type": "application/json",
+
+    "Access-Control-Allow-Origin": "*"
+
+  }
+
+});
 
     return new Response(JSON.stringify(data), {
       status: anthropicRes.status,
