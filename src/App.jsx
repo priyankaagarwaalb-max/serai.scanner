@@ -132,16 +132,39 @@ export default function App() {
   };
 
   const handleImageUpload = (e) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = (ev) => {
-      const dataUrl = ev.target.result;
-      setImage({ base64: dataUrl.split(",")[1], mediaType: file.type, previewUrl: dataUrl });
+  const file = e.target.files?.[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = (ev) => {
+    // Force re-encode through a canvas to guarantee proper JPEG
+    const img = new Image();
+    img.onload = () => {
+      const canvas = document.createElement("canvas");
+      const maxDim = 1600;
+      let { width, height } = img;
+      if (width > maxDim || height > maxDim) {
+        const scale = maxDim / Math.max(width, height);
+        width = Math.round(width * scale);
+        height = Math.round(height * scale);
+      }
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext("2d");
+      ctx.drawImage(img, 0, 0, width, height);
+      const jpegDataUrl = canvas.toDataURL("image/jpeg", 0.85);
+      setImage({
+        base64: jpegDataUrl.split(",")[1],
+        mediaType: "image/jpeg",
+        previewUrl: jpegDataUrl,
+      });
       setError("");
     };
-    reader.readAsDataURL(file);
+    img.onerror = () => setError("Couldn't read that image. Try another.");
+    img.src = ev.target.result;
   };
+  reader.readAsDataURL(file);
+};
 
   const startAnalysis = () => {
     if (mode === "photo" && !image) return;
