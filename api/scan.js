@@ -2,10 +2,6 @@
 // Vercel serverless function. Proxies to Anthropic API.
 // ANTHROPIC_API_KEY is read from Vercel environment variables.
 
-export const config = {
-  runtime: "edge",
-};
-
 export default async function handler(request) {
   // CORS — handle preflight
   if (request.method === "OPTIONS") {
