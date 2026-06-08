@@ -172,7 +172,7 @@ export default function App() {
 
     : image.mediaType;
     content = [
-          { type: "image", source: { type: "base64", media_type: mediaType, data: image.base64 } },
+          { type: "image", source: { type: "base64", media_type: image.mediaType, data: image.base64 } },
           { type: "text", text: "Photo of a beauty/personal care product label. Extract ingredients then run SERAI/SCANNER analysis." },
         ];
       } else {
