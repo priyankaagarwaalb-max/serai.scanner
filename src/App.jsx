@@ -22,7 +22,7 @@ const C = {
   surfaceSolid: "rgba(31,61,46,0.85)",
 };
 
-const BG_IMAGE = "https://images.unsplash.com/photo-1530176928500-2372a88e00b5?w=1600&q=75&auto=format&fit=crop";
+const BG_IMAGE = "https://images.unsplash.com/photo-1518965539400-77d851d65c43?w=1600&q=75&auto=format&fit=crop";
 
 const FLAGS = {
   KEEPER: {
@@ -354,11 +354,11 @@ export default function App() {
         position: "fixed", inset: 0,
         backgroundImage: `url(${BG_IMAGE})`,
         backgroundSize: "cover", backgroundPosition: "center",
-        zIndex: 0, filter: "sepia(0.6) saturate(1.25) brightness(0.55) contrast(1.08)",
+        zIndex: 0, filter: "sepia(0.7) saturate(1.35) brightness(0.85) contrast(1.1)",
       }} />
       <div style={{
         position: "fixed", inset: 0,
-        background: "linear-gradient(180deg, rgba(24,20,12,0.5) 0%, rgba(24,20,12,0.3) 40%, rgba(21,42,32,0.92) 100%)",
+        background: "linear-gradient(180deg, rgba(24,20,12,0.25) 0%, rgba(24,20,12,0.15) 45%, rgba(21,42,32,0.85) 100%)",
         zIndex: 1, pointerEvents: "none",
       }} />
 
